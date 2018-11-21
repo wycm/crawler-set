@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 /**
  * 美团点评字体反爬
  * xb -> x = 0 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
- * xb -> columnNumber = (x /-14) + 1
+ * xb -> columnNumber = (x /-14) + 1, y = -7 - 30 * (lineNumber - 1)
  * ov -> x = -8 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
  * lg -> x = 0 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
  * fq -> x = 0 - 12 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
@@ -27,7 +27,6 @@ public class DianpingCrawler {
     public static void main(String[] args) throws IOException {
         getContent("http://www.dianping.com/shop/96231053");
     }
-
     private static void getContent(String detailUrl) throws IOException {
         CloseableHttpClient httpClient = HttpClients
                 .custom()
