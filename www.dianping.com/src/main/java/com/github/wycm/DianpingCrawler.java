@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 美团点评字体反爬
@@ -23,7 +24,6 @@ import java.util.regex.Pattern;
  * em -> x = 0 - 12 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
  */
 public class DianpingCrawler {
-    private static final Map<String, int[][]> cssMap = new HashMap<>();
     public static void main(String[] args) throws IOException {
         getContent("http://www.dianping.com/shop/96231053");
     }
@@ -60,6 +60,7 @@ public class DianpingCrawler {
                 cssList.add(new CssBackground(cssBackgroundMatch.group(1), Integer.valueOf(cssBackgroundMatch.group(3)), Integer.valueOf(cssBackgroundMatch.group(4))));
             }
         }
+        //对css分组排序
         cssList.sort((c1, c2) ->{
             int i = c1.getClassName().substring(0, 3).compareTo(c2.getClassName().substring(0, 3));
             if (i != 0){
@@ -73,6 +74,7 @@ public class DianpingCrawler {
                 }
             }
         });
+//        cssList.forEach(System.out::println);
         int xIndex = 0;
         int yIndex = 0;
         CssBackground lastCssBackground = null;
@@ -109,24 +111,27 @@ public class DianpingCrawler {
             c.setDocument(cacheDocumentMap.get(c.getClassName().substring(0, 3)));
             Document doc = c.getDocument();
             Element e = null;
-            String type = c.getClassName().substring(0, 3);
-            if (type.equals(".ov") || type.equals(".so")){
+            if ((c.getX() == -6 && c.getY() == -6) || (c.getX() % -12 == -7 && c.getY() == -6)){
                 e = doc.select("text").first();
-            } else if (type.equals(".lg") || type.equals(".em") || type.equals(".xb")){
+            } else if ((c.getX() == -7 && c.getY() == -7) || (c.getX() % 14 == -8 && c.getY() == -7)){
+                e = doc.select("text").first();
+            } else if (c.getX() % -12 == 0 && c.getY() % -30 == -6){
                 e = doc.select("textPath[xlink:href='#" + (c.getyIndex() + 1) + "']").first();
-            } else if (type.equals(".fq")){
-                e = doc.select("text").get(c.getyIndex());
+            } else if (c.getX() % -14 == 0 && c.getY() % -30 == -7){
+                e = doc.select("textPath[xlink:href='#" + (c.getyIndex() + 1) + "']").first();
             }
             String text = e.text();
             c.setActualFont(text.substring(c.getxIndex(), c.getxIndex() + 1));
             cssBackgroundMap.put(c.getClassName().substring(1, c.getClassName().length()), c);
             return c;
-        }).forEach(System.out::println);
+        }).collect(Collectors.toList());
         //还原网页
         Pattern spanPattern = Pattern.compile("<span class=\"([a-z]{2}-[A-Za-z0-9]{4})\"></span>");
         Matcher contentMatcher = spanPattern.matcher(originalContent);
         while (contentMatcher.find()){
-            originalContent = originalContent.replace(contentMatcher.group(0), cssBackgroundMap.get(contentMatcher.group(1)).getActualFont());
+            String s1 = contentMatcher.group(0);
+            String s2 = cssBackgroundMap.get(contentMatcher.group(1)).getActualFont();
+            originalContent = originalContent.replace(s1, s2);
         }
         System.out.println(originalContent);
     }
