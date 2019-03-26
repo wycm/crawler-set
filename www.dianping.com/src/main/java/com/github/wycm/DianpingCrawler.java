@@ -16,12 +16,6 @@ import java.util.stream.Collectors;
 
 /**
  * 美团点评字体反爬
- * xb -> x = 0 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
- * xb -> columnNumber = (x /-14) + 1, y = -7 - 30 * (lineNumber - 1)
- * ov -> x = -8 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
- * lg -> x = 0 - 14 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
- * fq -> x = 0 - 12 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
- * em -> x = 0 - 12 * (columnNumber - 1), y = -7 - 30 * (lineNumber - 1)
  */
 public class DianpingCrawler {
     public static void main(String[] args) throws IOException {
@@ -36,7 +30,7 @@ public class DianpingCrawler {
         Document document= Jsoup.parse(originalContent);
         String cssUrl = "http:" + document.select("link[href*=svgtextcss]").first().attr("href");
         String cssResponse = Jsoup.connect(cssUrl).execute().body();
-        System.out.println(cssResponse);
+//        System.out.println(cssResponse);
         Pattern pattern = Pattern.compile("class\\^=\"(.*?)\".*?url\\((.*?)\\)");
         Matcher matcher = pattern.matcher(cssResponse);
         Map<String, String> urlMap = new HashMap<>();
@@ -74,7 +68,7 @@ public class DianpingCrawler {
                 }
             }
         });
-//        cssList.forEach(System.out::println);
+        cssList.forEach(System.out::println);
         int xIndex = 0;
         int yIndex = 0;
         CssBackground lastCssBackground = null;
@@ -103,6 +97,7 @@ public class DianpingCrawler {
         }
         Map<String, Document> cacheDocumentMap = new HashMap<>();
         Map<String, CssBackground> cssBackgroundMap = new HashMap<>();
+        String lastPrefix = "";
         cssList.stream().map(c -> {
             c.setSvgResponse(svgMap.get(c.getClassName().substring(1, 4)));
             if (!cacheDocumentMap.containsKey(c.getClassName().substring(0, 3))){
@@ -115,10 +110,26 @@ public class DianpingCrawler {
                 e = doc.select("text").first();
             } else if ((c.getX() == -7 && c.getY() == -7) || (c.getX() % 14 == -8 && c.getY() == -7)){
                 e = doc.select("text").first();
+            } else if (c.getX() % 6 == -1 && c.getY() == -6){
+                e = doc.select("text").first();
             } else if (c.getX() % -12 == 0 && c.getY() % -30 == -6){
                 e = doc.select("textPath[xlink:href='#" + (c.getyIndex() + 1) + "']").first();
             } else if (c.getX() % -14 == 0 && c.getY() % -30 == -7){
                 e = doc.select("textPath[xlink:href='#" + (c.getyIndex() + 1) + "']").first();
+            }
+            if (c == null){
+                //为上一个
+                //CssBackground{className='.hy-GijB', x=-7, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-o8Bu', x=-19, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-7IxC', x=-31, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-8zQE', x=-43, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-PrgG', x=-55, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-Qbc8', x=-67, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-TnVD', x=-79, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-TqUO', x=-91, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-UkCG', x=-103, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //CssBackground{className='.hy-yOPP', x=-114, y=-6, xIndex=0, yIndex=0, actualFont='null'}
+                //todo最后一个不满足规则
             }
             String text = e.text();
             c.setActualFont(text.substring(c.getxIndex(), c.getxIndex() + 1));

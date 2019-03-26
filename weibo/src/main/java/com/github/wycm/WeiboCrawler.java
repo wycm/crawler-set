@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class WeiboCrawler {
     private static final String CHECK_URL = "https://login.sina.com.cn/sso/prelogin.php?checkpin=1&entry=mweibo&su=MTMwODgyODA4NjA=&callback=jsonpcallback1503386116934";
     private static final String LOGIN_URL = "https://passport.weibo.cn/sso/login";
-    private static final String POST_ARGS = "username=13268037201&password=cdd4cddb54&savestate=1&r=http%3A%2F%2Fm.weibo.cn%2F&ec=0&pagerefer=https%3A%2F%2Fpassport.weibo.cn%2Fsignin%2Fwelcome%3Fentry%3Dmweibo%26r%3Dhttp%253A%252F%252Fm.weibo.cn%252F&entry=mweibo&wentry=&loginfrom=&client_id=&code=&qq=&mainpageflag=1&hff=&hfp=";
+    private static final String POST_ARGS = "username=13268037201&password=password&savestate=1&r=http%3A%2F%2Fm.weibo.cn%2F&ec=0&pagerefer=https%3A%2F%2Fpassport.weibo.cn%2Fsignin%2Fwelcome%3Fentry%3Dmweibo%26r%3Dhttp%253A%252F%252Fm.weibo.cn%252F&entry=mweibo&wentry=&loginfrom=&client_id=&code=&qq=&mainpageflag=1&hff=&hfp=";
     private static final String KEYWORD_ARGS = "type=all&queryVal=${keyword}&luicode=10000011&lfid=106003type%3D1&title=${keyword}&containerid=100103type%3D1%26q%3D${keyword}";
     /**
      * 搜索url
